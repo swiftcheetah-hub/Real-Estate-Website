@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { readTable } from '../../../../../lib/db'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/properties/public/[id] - Get single property (public)
 export async function GET(request, { params }) {
   try {

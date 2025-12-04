@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { readTable, writeTable, getCurrentTimestamp } from '../../../lib/db'
 import { verifyAuth } from '../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 // Helper to get or create site settings
 function getSiteSettings() {
   const settings = readTable('siteSettings')

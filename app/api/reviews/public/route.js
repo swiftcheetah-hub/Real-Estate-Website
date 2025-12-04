@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { readTable } from '../../../../lib/db'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/reviews/public - Get all active reviews (public)
 export async function GET(request) {
   try {

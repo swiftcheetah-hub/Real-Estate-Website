@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { readTable, writeTable, getCurrentTimestamp } from '../../../../lib/db'
 import { verifyAuth } from '../../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 // PATCH /api/contact-info/[id] - Update contact info (admin only)
 export async function PATCH(request, { params }) {
   try {

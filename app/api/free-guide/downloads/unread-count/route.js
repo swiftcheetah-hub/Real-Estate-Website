@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { readTable } from '../../../../../lib/db'
 import { verifyAuth } from '../../../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/free-guide/downloads/unread-count - Get unread downloads count (admin only)
 export async function GET(request) {
   try {

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { readTable, writeTable, getCurrentTimestamp } from '../../../../lib/db'
 import { verifyAuth } from '../../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/messages/[id] - Get message by ID (admin only)
 export async function GET(request, { params }) {
   try {

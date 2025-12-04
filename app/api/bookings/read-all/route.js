@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { readTable, writeTable, getCurrentTimestamp } from '../../../../lib/db'
 import { verifyAuth } from '../../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 // PATCH /api/bookings/read-all - Mark all bookings as read (admin only)
 export async function PATCH(request) {
   try {

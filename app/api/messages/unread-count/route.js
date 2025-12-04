@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { readTable } from '../../../../lib/db'
 import { verifyAuth } from '../../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/messages/unread-count - Get unread messages count (admin only)
 export async function GET(request) {
   try {

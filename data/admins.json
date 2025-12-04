@@ -2,12 +2,12 @@
   {
     "id": "91d47381-28d3-476a-8e34-7e4b4c8a3ac1",
     "email": "admin@eliteproperties.com",
-    "passwordHash": "$2a$10$xYz/KFDo3HiNp0E4AYcyseQPt5Btskkr6v8rwRN5Jec1cCfucXXMa",
+    "passwordHash": "$2a$10$pKW2UGFPJhdm9sOc6CGnzOiU2.eLqIUlFx2JBUxawhcwUkhllCr9u",
     "fullName": "Admin User",
     "role": "admin",
     "isActive": true,
-    "lastLogin": "2025-12-04T19:29:22.815Z",
+    "lastLogin": "2025-12-04T20:19:52.436Z",
     "createdAt": "2025-12-04T03:31:25.500Z",
-    "updatedAt": "2025-12-04T19:29:04.967Z"
+    "updatedAt": "2025-12-04T20:05:12.989Z"
   }
 ]

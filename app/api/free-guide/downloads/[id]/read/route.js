@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { readTable, writeTable, getCurrentTimestamp } from '../../../../../../lib/db'
 import { verifyAuth } from '../../../../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 // PATCH /api/free-guide/downloads/[id]/read - Mark download as read (admin only)
 export async function PATCH(request, { params }) {
   try {

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { readTable, writeTable, generateId, getCurrentTimestamp } from '../../../lib/db'
 import { verifyAuth } from '../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 // POST /api/messages - Create message (public)
 export async function POST(request) {
   try {

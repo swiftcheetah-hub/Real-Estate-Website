@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { readTable, writeTable, getCurrentTimestamp } from '@/lib/db'
 import { verifyAuth, hashPassword } from '@/lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/admin/profile - Get current admin profile (admin only)
 export async function GET(request) {
   try {

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { readTable, writeTable, generateId, getCurrentTimestamp } from '../../../../lib/db'
 
+export const dynamic = 'force-dynamic'
+
 // POST /api/buyers/enquiries - Create a buyer enquiry (public)
 export async function POST(request) {
   try {

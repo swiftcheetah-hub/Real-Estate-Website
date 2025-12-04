@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { readTable, writeTable, getCurrentTimestamp } from '../../../../lib/db'
 import { generateToken, comparePassword } from '../../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request) {
   try {
     const body = await request.json()
