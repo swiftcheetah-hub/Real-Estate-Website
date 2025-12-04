@@ -35,11 +35,16 @@ export async function POST(request) {
       )
     }
 
-    // Update last login
-    admin.lastLogin = getCurrentTimestamp()
-    const adminIndex = admins.findIndex(a => a.id === admin.id)
-    admins[adminIndex] = admin
-    writeTable('admins', admins)
+    // Update last login (optional - may fail on read-only filesystems like Vercel)
+    try {
+      admin.lastLogin = getCurrentTimestamp()
+      const adminIndex = admins.findIndex(a => a.id === admin.id)
+      admins[adminIndex] = admin
+      writeTable('admins', admins)
+    } catch (writeError) {
+      // Ignore write errors - login can still proceed
+      console.log('Could not update lastLogin (read-only filesystem)')
+    }
 
     // Generate token
     const payload = { email: admin.email, sub: admin.id, role: admin.role }
