@@ -14,11 +14,10 @@ export default function ReviewManagement() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [reviewToDelete, setReviewToDelete] = useState(null)
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-
   useEffect(() => {
     fetchReviews()
     fetchAgents()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchReviews = async () => {
@@ -31,7 +30,7 @@ export default function ReviewManagement() {
         return
       }
 
-      const response = await fetch(`${API_URL}/reviews`, {
+      const response = await fetch('/api/reviews', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -57,7 +56,7 @@ export default function ReviewManagement() {
   const fetchAgents = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/agents`, {
+      const response = await fetch('/api/agents', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -93,7 +92,7 @@ export default function ReviewManagement() {
         const uploadFormData = new FormData()
         uploadFormData.append('image', formData.imageFile)
 
-        const uploadResponse = await fetch(`${API_URL}/upload/image`, {
+        const uploadResponse = await fetch('/api/upload/image', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -113,7 +112,7 @@ export default function ReviewManagement() {
       let response
 
       if (isEditMode) {
-        response = await fetch(`${API_URL}/reviews/${selectedReview.id}`, {
+        response = await fetch(`/api/reviews/${selectedReview.id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -122,7 +121,7 @@ export default function ReviewManagement() {
           body: JSON.stringify(payload),
         })
       } else {
-        response = await fetch(`${API_URL}/reviews`, {
+        response = await fetch('/api/reviews', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -163,7 +162,7 @@ export default function ReviewManagement() {
   const handleDeleteConfirm = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/reviews/${reviewToDelete.id}`, {
+      const response = await fetch(`/api/reviews/${reviewToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

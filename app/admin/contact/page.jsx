@@ -21,6 +21,7 @@ export default function ContactManagement() {
   useEffect(() => {
     fetchContactInfo()
     fetchAgents()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchContactInfo = async () => {

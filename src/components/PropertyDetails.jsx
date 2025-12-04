@@ -40,12 +40,12 @@ const PropertyDetails = () => {
   const [saves, setSaves] = useState(342)
   const [shares, setShares] = useState(156)
   const [inquiries, setInquiries] = useState(89)
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
   useEffect(() => {
     if (id) {
       fetchProperty()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const PropertyDetails = () => {
   const fetchProperty = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${API_URL}/properties/public/${id}`)
+      const response = await fetch(`/api/properties/public/${id}`)
       if (response.ok) {
         const data = await response.json()
         
@@ -115,7 +115,7 @@ const PropertyDetails = () => {
 
   const fetchAgent = async (agentId) => {
     try {
-      const response = await fetch(`${API_URL}/agents/public`)
+      const response = await fetch('/api/agents/public')
       if (response.ok) {
         const agents = await response.json()
         const foundAgent = agents.find(a => a.id === agentId)

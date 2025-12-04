@@ -1,22 +1,28 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { X, Upload, Image as ImageIcon, Save, Edit2, Trash2, Home, Building2 } from 'lucide-react'
+import { X, Upload, Image as ImageIcon, Save, Edit2, Trash2, Home, Building2, Video, Play } from 'lucide-react'
 
 const GalleryModal = ({ isOpen, onClose, galleryItem = null, onSave }) => {
   const [formData, setFormData] = useState({
     name: '',
     role: 'Interior',
     imageUrl: '',
+    videoUrl: '',
+    mediaType: 'image',
     displayOrder: 0,
     isActive: true,
   })
 
   const [previewImage, setPreviewImage] = useState('')
+  const [previewVideo, setPreviewVideo] = useState('')
   const [imageFile, setImageFile] = useState(null)
+  const [videoFile, setVideoFile] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
   const [uploadError, setUploadError] = useState('')
-  const fileInputRef = useRef(null)
+  const imageInputRef = useRef(null)
+  const videoInputRef = useRef(null)
+  const videoRef = useRef(null)
   const isEditMode = !!galleryItem
 
   useEffect(() => {
@@ -26,21 +32,29 @@ const GalleryModal = ({ isOpen, onClose, galleryItem = null, onSave }) => {
           name: galleryItem.name || '',
           role: galleryItem.role || 'Interior',
           imageUrl: galleryItem.imageUrl || '',
+          videoUrl: galleryItem.videoUrl || '',
+          mediaType: galleryItem.mediaType || 'image',
           displayOrder: galleryItem.displayOrder || 0,
           isActive: galleryItem.isActive !== undefined ? galleryItem.isActive : true,
         })
         setPreviewImage(galleryItem.imageUrl || '')
+        setPreviewVideo(galleryItem.videoUrl || '')
         setImageFile(null)
+        setVideoFile(null)
       } else {
         setFormData({
           name: '',
           role: 'Interior',
           imageUrl: '',
+          videoUrl: '',
+          mediaType: 'image',
           displayOrder: 0,
           isActive: true,
         })
         setPreviewImage('')
+        setPreviewVideo('')
         setImageFile(null)
+        setVideoFile(null)
       }
       setUploadError('')
     }
@@ -71,21 +85,29 @@ const GalleryModal = ({ isOpen, onClose, galleryItem = null, onSave }) => {
     }))
   }
 
-  const handleFileChange = (e) => {
+  const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      processFile(file)
+      processImageFile(file)
     }
   }
 
-  const processFile = (file) => {
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      processVideoFile(file)
+    }
+  }
+
+  const processImageFile = (file) => {
     setUploadError('')
     if (!file.type.startsWith('image/')) {
       setUploadError('Only image files are allowed.')
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError('File size cannot exceed 5MB.')
+    
+    if (file.size > 5 * 1024 * 1024) { // 5MB
+      setUploadError('Image file size cannot exceed 5MB.')
       return
     }
 
@@ -93,9 +115,35 @@ const GalleryModal = ({ isOpen, onClose, galleryItem = null, onSave }) => {
     reader.onloadend = () => {
       setPreviewImage(reader.result)
       setImageFile(file)
-      setFormData((prev) => ({ ...prev, imageUrl: reader.result }))
+      setFormData((prev) => ({ 
+        ...prev, 
+        imageUrl: reader.result,
+        mediaType: prev.videoUrl ? 'video' : 'image'
+      }))
     }
     reader.readAsDataURL(file)
+  }
+
+  const processVideoFile = (file) => {
+    setUploadError('')
+    if (!file.type.startsWith('video/')) {
+      setUploadError('Only video files are allowed.')
+      return
+    }
+    
+    if (file.size > 50 * 1024 * 1024) { // 50MB
+      setUploadError('Video file size cannot exceed 50MB.')
+      return
+    }
+
+    const videoUrl = URL.createObjectURL(file)
+    setPreviewVideo(videoUrl)
+    setVideoFile(file)
+    setFormData((prev) => ({ 
+      ...prev, 
+      videoUrl: videoUrl,
+      mediaType: 'video'
+    }))
   }
 
   const handleDragOver = (e) => {
@@ -107,49 +155,100 @@ const GalleryModal = ({ isOpen, onClose, galleryItem = null, onSave }) => {
     setIsDragging(false)
   }
 
-  const handleDrop = (e) => {
+  const handleImageDrop = (e) => {
     e.preventDefault()
     setIsDragging(false)
     const file = e.dataTransfer.files[0]
-    if (file) {
-      processFile(file)
+    if (file && file.type.startsWith('image/')) {
+      processImageFile(file)
+    }
+  }
+
+  const handleVideoDrop = (e) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files[0]
+    if (file && file.type.startsWith('video/')) {
+      processVideoFile(file)
     }
   }
 
   const handleRemoveImage = () => {
     setPreviewImage('')
     setImageFile(null)
-    setFormData((prev) => ({ ...prev, imageUrl: '' }))
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+    setFormData((prev) => ({ 
+      ...prev, 
+      imageUrl: '',
+      mediaType: prev.videoUrl ? 'video' : 'image'
+    }))
+    if (imageInputRef.current) {
+      imageInputRef.current.value = ''
+    }
+  }
+
+  const handleRemoveVideo = () => {
+    if (previewVideo) {
+      URL.revokeObjectURL(previewVideo)
+    }
+    setPreviewVideo('')
+    setVideoFile(null)
+    setFormData((prev) => ({ 
+      ...prev, 
+      videoUrl: '',
+      mediaType: prev.imageUrl ? 'image' : 'image'
+    }))
+    if (videoInputRef.current) {
+      videoInputRef.current.value = ''
     }
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
+    // Validate that at least one media file is provided (for new items) or exists (for edits)
+    if (!isEditMode && !imageFile && !videoFile) {
+      setUploadError('Please upload at least one image or video.')
+      return
+    }
+
+    if (isEditMode && !imageFile && !videoFile && !formData.imageUrl && !formData.videoUrl) {
+      setUploadError('Please upload at least one image or video.')
+      return
+    }
+
     const processedData = {
       ...formData,
       displayOrder: parseInt(formData.displayOrder) || 0,
       imageFile: imageFile,
+      videoFile: videoFile,
     }
 
     onSave(processedData, isEditMode)
   }
 
   const handleClose = () => {
+    if (previewVideo) {
+      URL.revokeObjectURL(previewVideo)
+    }
     setFormData({
       name: '',
       role: 'Interior',
       imageUrl: '',
+      videoUrl: '',
+      mediaType: 'image',
       displayOrder: 0,
       isActive: true,
     })
     setPreviewImage('')
+    setPreviewVideo('')
     setImageFile(null)
+    setVideoFile(null)
     setUploadError('')
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+    if (imageInputRef.current) {
+      imageInputRef.current.value = ''
+    }
+    if (videoInputRef.current) {
+      videoInputRef.current.value = ''
     }
     onClose()
   }
@@ -262,42 +361,57 @@ const GalleryModal = ({ isOpen, onClose, galleryItem = null, onSave }) => {
           {/* Image Upload */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Upload className="w-5 h-5 text-primary" />
-              Gallery Image *
+              <ImageIcon className="w-5 h-5 text-primary" />
+              Gallery Image (Optional - used as preview for videos)
             </h3>
             <div
-              className={`relative w-full h-64 flex items-center justify-center border-2 ${
+              className={`relative w-full h-48 flex items-center justify-center border-2 ${
                 isDragging ? 'border-primary' : 'border-primary/20'
               } border-dashed rounded-lg transition-colors duration-200 ${
                 previewImage ? 'p-0' : 'p-4'
-              }`}
+              } group`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
+              onDrop={handleImageDrop}
             >
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                ref={imageInputRef}
+                onChange={handleImageChange}
+                className="hidden"
+              />
+              
               {previewImage ? (
                 <>
                   <img
                     src={previewImage}
-                    alt="Gallery Preview"
+                    alt="Image Preview"
                     className="w-full h-full object-cover rounded-lg"
                   />
-                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-lg">
+                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-lg pointer-events-none group-hover:pointer-events-auto">
                     <p className="text-white text-sm mb-2">
                       {imageFile ? imageFile.name : 'Image Preview'}
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 pointer-events-auto">
                       <button
                         type="button"
-                        onClick={() => fileInputRef.current.click()}
-                        className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-semibold hover:bg-primary-dark transition-colors flex items-center gap-2"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          imageInputRef.current?.click()
+                        }}
+                        className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-semibold hover:bg-primary-dark transition-colors flex items-center gap-2 z-10"
                       >
                         <Upload className="w-4 h-4" /> Change Image
                       </button>
                       <button
                         type="button"
-                        onClick={handleRemoveImage}
-                        className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors flex items-center gap-2"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleRemoveImage()
+                        }}
+                        className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors flex items-center gap-2 z-10"
                       >
                         <Trash2 className="w-4 h-4" /> Remove
                       </button>
@@ -307,26 +421,95 @@ const GalleryModal = ({ isOpen, onClose, galleryItem = null, onSave }) => {
               ) : (
                 <label htmlFor="image-upload" className="flex flex-col items-center justify-center cursor-pointer text-gray-400 hover:text-primary transition-colors">
                   <ImageIcon className="w-10 h-10 mb-2" />
-                  <p className="text-lg font-semibold mb-1">Drag & drop image here</p>
-                  <p className="text-sm mb-2">or click to browse</p>
-                  <span className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-semibold hover:bg-primary-dark transition-colors">
-                    Choose File
-                  </span>
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
-                    required={!isEditMode}
+                  <p className="text-sm font-semibold mb-1">Click to upload image</p>
+                  <p className="text-xs text-gray-500">or drag & drop</p>
+                </label>
+              )}
+            </div>
+          </div>
+
+          {/* Video Upload */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Video className="w-5 h-5 text-primary" />
+              Gallery Video (Optional)
+            </h3>
+            <div
+              className={`relative w-full h-48 flex items-center justify-center border-2 ${
+                isDragging ? 'border-primary' : 'border-primary/20'
+              } border-dashed rounded-lg transition-colors duration-200 ${
+                previewVideo ? 'p-0' : 'p-4'
+              } group`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleVideoDrop}
+            >
+              <input
+                id="video-upload"
+                type="file"
+                accept="video/*"
+                ref={videoInputRef}
+                onChange={handleVideoChange}
+                className="hidden"
+              />
+              
+              {previewVideo ? (
+                <>
+                  <video
+                    ref={videoRef}
+                    src={previewVideo}
+                    className="w-full h-full object-cover rounded-lg"
+                    controls={false}
+                    muted
+                    loop
+                    onMouseEnter={(e) => e.target.play()}
+                    onMouseLeave={(e) => {
+                      e.target.pause()
+                      e.target.currentTime = 0
+                    }}
                   />
+                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-lg pointer-events-none group-hover:pointer-events-auto">
+                    <p className="text-white text-sm mb-2">
+                      {videoFile ? videoFile.name : 'Video Preview'}
+                    </p>
+                    <div className="flex gap-2 pointer-events-auto">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          videoInputRef.current?.click()
+                        }}
+                        className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-semibold hover:bg-primary-dark transition-colors flex items-center gap-2 z-10"
+                      >
+                        <Upload className="w-4 h-4" /> Change Video
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleRemoveVideo()
+                        }}
+                        className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors flex items-center gap-2 z-10"
+                      >
+                        <Trash2 className="w-4 h-4" /> Remove
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <label htmlFor="video-upload" className="flex flex-col items-center justify-center cursor-pointer text-gray-400 hover:text-primary transition-colors">
+                  <Video className="w-10 h-10 mb-2" />
+                  <p className="text-sm font-semibold mb-1">Click to upload video</p>
+                  <p className="text-xs text-gray-500">or drag & drop</p>
                 </label>
               )}
               {uploadError && (
                 <p className="absolute bottom-2 text-red-400 text-sm">{uploadError}</p>
               )}
             </div>
+            <p className="text-xs text-gray-400 mt-2">
+              Note: At least one image or video is required. If both are uploaded, the image will be used as a preview.
+            </p>
           </div>
 
           <div className="flex items-center justify-end gap-4 pt-4 border-t border-primary/20">

@@ -1,3 +1,5 @@
+const path = require('path')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -13,6 +15,16 @@ const nextConfig = {
         hostname: '**.ep.dynamics.net',
       },
     ],
+  },
+  webpack: (config) => {
+    config.resolve.extensionAlias = {
+      '.js': ['.js', '.ts', '.tsx'],
+    }
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname),
+    }
+    return config
   },
 }
 

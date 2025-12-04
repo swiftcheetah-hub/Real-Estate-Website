@@ -11,6 +11,7 @@ import Blog from '../src/components/Blog'
 import Booking from '../src/components/Booking'
 import Contact from '../src/components/Contact'
 import FreeGuide from '../src/components/FreeGuide'
+import MatchBuyer from '../src/components/MatchBuyer'
 import Footer from '../src/components/Footer'
 
 export default function Home() {
@@ -20,6 +21,20 @@ export default function Home() {
     const handleScroll = () => setScrollY(window.scrollY)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    // Handle hash navigation when page loads
+    const hash = window.location.hash
+    if (hash) {
+      const sectionId = hash.substring(1)
+      setTimeout(() => {
+        const element = document.getElementById(sectionId)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' })
+        }
+      }, 100)
+    }
   }, [])
 
   return (
@@ -33,6 +48,7 @@ export default function Home() {
       <Reviews />
       <Gallery />
       <Blog />
+      <MatchBuyer />
       <Contact />
       <Footer />
     </div>

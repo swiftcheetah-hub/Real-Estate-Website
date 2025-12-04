@@ -1,0 +1,110 @@
+[
+  {
+    "id": "g1a2b3c4-d5e6-4789-a0b1-c2d3e4f5a6b7",
+    "name": "Modern Living Room",
+    "role": "Interior",
+    "imageUrl": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800",
+    "videoUrl": null,
+    "mediaType": "image",
+    "displayOrder": 0,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "g2b3c4d5-e6f7-4890-b1c2-d3e4f5a6b7c8",
+    "name": "Luxury Exterior",
+    "role": "Exterior",
+    "imageUrl": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800",
+    "videoUrl": null,
+    "mediaType": "image",
+    "displayOrder": 1,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "g3c4d5e6-f7a8-4901-b2c3-d4e5f6a7b8c9",
+    "name": "Designer Kitchen",
+    "role": "Interior",
+    "imageUrl": "https://images.unsplash.com/photo-1639405069836-f82aa6dcb900?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBraXRjaGVuJTIwbHV4dXJ5fGVufDF8fHx8MTc2Mjg1NTEwNXww&ixlib=rb-4.1.0&q=80&w=1080",
+    "videoUrl": null,
+    "mediaType": "image",
+    "displayOrder": 2,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "g4d5e6f7-a8b9-4012-c3d4-e5f6a7b8c9d0",
+    "name": "Master Bedroom",
+    "role": "Interior",
+    "imageUrl": "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800",
+    "videoUrl": null,
+    "mediaType": "image",
+    "displayOrder": 3,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "g5e6f7a8-b9c0-4123-d4e5-f6a7b8c9d0e1",
+    "name": "Outdoor Pool",
+    "role": "Exterior",
+    "imageUrl": "https://images.unsplash.com/photo-1615529182904-14819c35db37?w=800",
+    "videoUrl": null,
+    "mediaType": "image",
+    "displayOrder": 4,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "g6f7a8b9-c0d1-4234-e5f6-a7b8c9d0e1f2",
+    "name": "Elegant Bathroom",
+    "role": "Interior",
+    "imageUrl": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800",
+    "videoUrl": null,
+    "mediaType": "image",
+    "displayOrder": 5,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "g7a8b9c0-d1e2-4345-f6a7-b8c9d0e1f2a3",
+    "name": "Contemporary Home",
+    "role": "Exterior",
+    "imageUrl": "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800",
+    "videoUrl": null,
+    "mediaType": "image",
+    "displayOrder": 6,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "g8b9c0d1-e2f3-4456-a7b8-c9d0e1f2a3b4",
+    "name": "Home Office",
+    "role": "Interior",
+    "imageUrl": "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=80",
+    "videoUrl": null,
+    "mediaType": "image",
+    "displayOrder": 7,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "g9c0d1e2-f3a4-4567-b8c9-d0e1f2a3b4c5",
+    "name": "Garden View",
+    "role": "Exterior",
+    "imageUrl": "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800",
+    "videoUrl": null,
+    "mediaType": "image",
+    "displayOrder": 8,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  }
+]

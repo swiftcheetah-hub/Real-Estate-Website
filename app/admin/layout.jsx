@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import TopBar from '../../src/components/admin/TopBar'
 import Sidebar from '../../src/components/admin/Sidebar'
@@ -8,6 +8,8 @@ import Sidebar from '../../src/components/admin/Sidebar'
 export default function AdminLayout({ children }) {
   const router = useRouter()
   const pathname = usePathname()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isChecking, setIsChecking] = useState(true)
 
   useEffect(() => {
     // Prevent body scrolling on admin pages
@@ -19,17 +21,52 @@ export default function AdminLayout({ children }) {
 
   useEffect(() => {
     // Check authentication for admin pages (except login)
-    if (pathname !== '/admin/login') {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        router.push('/admin/login')
-      }
+    if (pathname === '/admin/login') {
+      setIsChecking(false)
+      setIsAuthenticated(false)
+      return
+    }
+
+    // Check if token exists
+    const token = localStorage.getItem('token')
+    if (!token) {
+      setIsAuthenticated(false)
+      setIsChecking(false)
+      router.push('/admin/login')
+      return
+    }
+
+    // Verify token is valid (basic check)
+    try {
+      // Token exists, consider authenticated
+      setIsAuthenticated(true)
+      setIsChecking(false)
+    } catch (error) {
+      // Invalid token
+      localStorage.removeItem('token')
+      setIsAuthenticated(false)
+      setIsChecking(false)
+      router.push('/admin/login')
     }
   }, [pathname, router])
+
+  // Show loading state while checking
+  if (isChecking && pathname !== '/admin/login') {
+    return (
+      <div className="h-screen bg-dark flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    )
+  }
 
   // Don't show layout for login page
   if (pathname === '/admin/login') {
     return <>{children}</>
+  }
+
+  // Don't render admin layout if not authenticated
+  if (!isAuthenticated) {
+    return null
   }
 
   return (

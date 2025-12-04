@@ -2,19 +2,31 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X, Home, User, Building2, Star, Image, BookOpen, Calendar, Download } from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
+import { Menu, X, Home, User, Building2, Star, Image, BookOpen, Calendar, Download, Users } from 'lucide-react'
 
 const Navbar = ({ scrollY }) => {
+  const router = useRouter()
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
+  const [siteSettings, setSiteSettings] = useState(null)
+
+  useEffect(() => {
+    // Fetch site settings for logo
+    fetch('/api/site-settings')
+      .then(res => res.json())
+      .then(data => setSiteSettings(data))
+      .catch(err => console.error('Error fetching site settings:', err))
+  }, [])
 
   useEffect(() => {
     setScrolled(scrollY > 50)
     
     // Update active section based on scroll position
     const handleScroll = () => {
-      const sections = ['home', 'about', 'properties', 'booking', 'free-guide', 'reviews', 'gallery', 'blog', 'contact']
+      const sections = ['home', 'about', 'properties', 'booking', 'free-guide', 'reviews', 'gallery', 'blog', 'match-buyer', 'contact']
       const current = sections.find(section => {
         const element = document.getElementById(section)
         if (element) {
@@ -39,17 +51,25 @@ const Navbar = ({ scrollY }) => {
     { name: 'Reviews', href: '/#reviews', id: 'reviews', icon: Star },
     { name: 'Gallery', href: '/#gallery', id: 'gallery', icon: Image },
     { name: 'Blog', href: '/#blog', id: 'blog', icon: BookOpen },
+    { name: 'Match Buyer', href: '/#match-buyer', id: 'match-buyer', icon: Users },
     { name: 'Contact', href: '/#contact', id: 'contact', icon: User },
   ]
 
   const handleNavClick = (href, id) => {
     if (href.startsWith('/#')) {
-      const sectionId = href.substring(2)
-      const element = document.getElementById(sectionId)
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
-        setActiveSection(id)
+      if (pathname === '/') {
+        const sectionId = href.substring(2)
+        const element = document.getElementById(sectionId)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' })
+          setActiveSection(id)
+        }
+      } else {
+        // If not on home page, navigate to home page with hash
+        router.push(href)
       }
+    } else {
+      router.push(href)
     }
     setIsOpen(false)
   }
@@ -66,26 +86,38 @@ const Navbar = ({ scrollY }) => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-black font-bold text-lg">EP</span>
-            </div>
+            {siteSettings?.logoUrl ? (
+              <img
+                src={siteSettings.logoUrl}
+                alt={siteSettings.siteName || 'Logo'}
+                className="h-10 w-auto object-contain"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-black font-bold text-lg">EP</span>
+              </div>
+            )}
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-white">Elite Properties</span>
-              <span className="text-xs text-gray-400">Luxury Real Estate</span>
+              <span className="text-xl font-bold text-white">{siteSettings?.siteName || 'Elite Properties'}</span>
+              <span className="text-xs text-gray-400">{siteSettings?.siteTagline || 'Luxury Real Estate'}</span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => {
-              const isActive = activeSection === item.id
+              const isActive = pathname === '/' 
+                ? activeSection === item.id 
+                : item.href.startsWith('/') && !item.href.startsWith('/#')
+                  ? pathname === item.href || pathname.startsWith(item.href + '/')
+                  : pathname === item.href
               return (
                 <button
                   key={item.name}
                   onClick={() => handleNavClick(item.href, item.id)}
                   className={`relative px-2 py-2 text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? 'text-primary'
+                      ? 'text-primary bg-primary/10 rounded-lg'
                       : 'text-gray-300 hover:text-primary'
                   }`}
                 >

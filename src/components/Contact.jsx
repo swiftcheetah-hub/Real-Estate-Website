@@ -17,16 +17,16 @@ const Contact = () => {
   const [contactInfo, setContactInfo] = useState(null)
   const [agents, setAgents] = useState([])
   const [submitting, setSubmitting] = useState(false)
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
   useEffect(() => {
     fetchContactInfo()
     fetchAgents()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchContactInfo = async () => {
     try {
-      const response = await fetch(`${API_URL}/contact-info`)
+      const response = await fetch('/api/contact-info')
       if (response.ok) {
         const data = await response.json()
         setContactInfo(data)
@@ -38,7 +38,7 @@ const Contact = () => {
 
   const fetchAgents = async () => {
     try {
-      const response = await fetch(`${API_URL}/agents`)
+      const response = await fetch('/api/agents/public')
       if (response.ok) {
         const data = await response.json()
         setAgents(data.filter((agent) => agent.isActive))
@@ -62,7 +62,7 @@ const Contact = () => {
         message: formData.message,
       }
 
-      const response = await fetch(`${API_URL}/messages`, {
+      const response = await fetch('/api/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ const Contact = () => {
             Get in Touch
           </h2>
           <p className="text-gray-400 text-lg md:text-xl max-w-3xl mx-auto">
-            Ready to find your dream property? Contact us today and let's make it happen
+            Ready to find your dream property? Contact us today and let&apos;s make it happen
           </p>
         </div>
 

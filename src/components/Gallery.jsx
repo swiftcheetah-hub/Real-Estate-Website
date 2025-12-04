@@ -1,30 +1,36 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import { useScrollAnimation } from '../hooks/useScrollAnimation'
 
 const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [galleryImages, setGalleryImages] = useState([])
   const [sectionRef, sectionVisible] = useScrollAnimation({ threshold: 0.1 })
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
   useEffect(() => {
     fetchGalleryItems()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchGalleryItems = async () => {
     try {
-      const response = await fetch(`${API_URL}/gallery/public`)
+      const response = await fetch('/api/gallery/public')
       if (response.ok) {
         const data = await response.json()
-        setGalleryImages(data.map(item => ({
-          id: item.id,
-          title: item.name,
-          category: item.role,
-          url: item.imageUrl,
-        })))
+        // Filter out items that have neither image nor video, and map the data
+        setGalleryImages(data
+          .filter(item => item.imageUrl || item.videoUrl) // Only show items with at least one media
+          .map(item => ({
+            id: item.id,
+            title: item.name,
+            category: item.role,
+            url: item.imageUrl || item.videoUrl,
+            mediaType: item.videoUrl ? 'video' : 'image',
+            videoUrl: item.videoUrl,
+            imageUrl: item.imageUrl,
+          })))
       }
     } catch (error) {
       console.error('Error fetching gallery items:', error)
@@ -127,25 +133,87 @@ const Gallery = () => {
 
         {/* Gallery Grid - 3x3 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {galleryImages.map((image, idx) => (
-            <div
-              key={image.id}
-              className={`relative group cursor-pointer overflow-hidden rounded-xl aspect-square section-animate section-scale ${sectionVisible ? 'animate-in' : ''}`}
-              style={{ transitionDelay: `${idx * 0.05}s` }}
-              onClick={() => openLightbox(image)}
-            >
-              <img
-                src={image.url}
-                alt={image.title}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
-                <div className="text-white text-xl font-bold mb-1">{image.title}</div>
-                <div className="text-gray-300 text-sm">{image.category}</div>
+          {galleryImages.map((item, idx) => {
+            const hasImage = item.imageUrl
+            const hasVideo = item.videoUrl
+            const showBoth = hasImage && hasVideo
+            
+            return (
+              <div
+                key={item.id}
+                className={`relative group cursor-pointer overflow-hidden rounded-xl aspect-square section-animate section-scale ${sectionVisible ? 'animate-in' : ''}`}
+                style={{ transitionDelay: `${idx * 0.05}s` }}
+                onClick={() => openLightbox(item)}
+              >
+                {/* If both image and video exist, show image as preview */}
+                {showBoth ? (
+                  <>
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <video
+                      src={item.videoUrl}
+                      className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      muted
+                      loop
+                      playsInline
+                      onMouseEnter={(e) => {
+                        e.target.play()
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.pause()
+                        e.target.currentTime = 0
+                      }}
+                    />
+                    {/* Play button overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="w-16 h-16 rounded-full bg-primary/80 flex items-center justify-center">
+                        <Play className="w-8 h-8 text-black ml-1" fill="currentColor" />
+                      </div>
+                    </div>
+                  </>
+                ) : hasVideo ? (
+                  // Only video - show video with play button
+                  <>
+                    <video
+                      src={item.videoUrl}
+                      className="w-full h-full object-cover"
+                      muted
+                      loop
+                      playsInline
+                      onMouseEnter={(e) => {
+                        e.target.play()
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.pause()
+                        e.target.currentTime = 0
+                      }}
+                    />
+                    {/* Play button overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <div className="w-16 h-16 rounded-full bg-primary/80 flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity">
+                        <Play className="w-8 h-8 text-black ml-1" fill="currentColor" />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  // Only image
+                  <img
+                    src={item.url || item.imageUrl}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
+                  <div className="text-white text-xl font-bold mb-1">{item.title}</div>
+                  <div className="text-gray-300 text-sm">{item.category}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -186,11 +254,20 @@ const Gallery = () => {
             className="max-w-6xl w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
-              src={selectedImage.url}
-              alt={selectedImage.title}
-              className="w-full h-auto rounded-lg"
-            />
+            {selectedImage.videoUrl ? (
+              <video
+                src={selectedImage.videoUrl}
+                controls
+                autoPlay
+                className="w-full h-auto rounded-lg"
+              />
+            ) : (
+              <img
+                src={selectedImage.url || selectedImage.imageUrl}
+                alt={selectedImage.title}
+                className="w-full h-auto rounded-lg"
+              />
+            )}
             <div className="mt-4 text-center">
               <h3 className="text-2xl font-bold text-white mb-2">{selectedImage.title}</h3>
               <p className="text-primary">{selectedImage.category}</p>

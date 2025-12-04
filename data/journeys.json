@@ -1,0 +1,62 @@
+[
+  {
+    "id": "j1a2b3c4-d5e6-4789-a0b1-c2d3e4f5a6b7",
+    "year": "2010",
+    "title": "Founded Elite Properties",
+    "description": "Started with a vision to redefine luxury real estate",
+    "displayOrder": 0,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "j2b3c4d5-e6f7-4890-b1c2-d3e4f5a6b7c8",
+    "year": "2015",
+    "title": "Reached $50M in Sales",
+    "description": "Milestone achievement in our first 5 years",
+    "displayOrder": 1,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "j3c4d5e6-f7a8-4901-b2c3-d4e5f6a7b8c9",
+    "year": "2018",
+    "title": "Expanded Team",
+    "description": "Grew to become a leading agency in the region",
+    "displayOrder": 2,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "j4d5e6f7-a8b9-4012-c3d4-e5f6a7b8c9d0",
+    "year": "2020",
+    "title": "Digital Innovation",
+    "description": "Launched virtual tours and advanced marketing",
+    "displayOrder": 3,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "j5e6f7a8-b9c0-4123-d4e5-f6a7b8c9d0e1",
+    "year": "2023",
+    "title": "$250M Total Sales",
+    "description": "Celebrated over 380 successful transactions",
+    "displayOrder": 4,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "j6f7a8b9-c0d1-4234-e5f6-a7b8c9d0e1f2",
+    "year": "2024",
+    "title": "Industry Recognition",
+    "description": "Awarded Top Real Estate Team of the Year",
+    "displayOrder": 5,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  }
+]

@@ -10,7 +10,6 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -18,7 +17,7 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +108,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Default Credentials Info */}
+          {/* Default Credentials Info
           <div className="mt-6 p-4 bg-dark border border-primary/10 rounded-lg">
             <p className="text-xs text-gray-400 text-center">
               Default credentials:
@@ -120,7 +119,7 @@ export default function LoginPage() {
             <p className="text-xs text-gray-500 text-center">
               Password: admin123
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

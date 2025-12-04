@@ -1,21 +1,21 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Download, TrendingUp, BarChart3, Home, FileText, CheckCircle, Mail, User } from 'lucide-react'
+import { Download, TrendingUp, BarChart3, Home, FileText, CheckCircle, Mail, User, Bell } from 'lucide-react'
 import { useScrollAnimation } from '../hooks/useScrollAnimation'
 
 const FreeGuide = () => {
   const [sectionRef, sectionVisible] = useScrollAnimation({ threshold: 0.1 })
   const [testimonials, setTestimonials] = useState([])
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
   useEffect(() => {
     fetchInvestors()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchInvestors = async () => {
     try {
-      const response = await fetch(`${API_URL}/investors/public`)
+      const response = await fetch('/api/investors/public')
       if (response.ok) {
         const data = await response.json()
         console.log('Fetched investors:', data) // Debug log
@@ -74,13 +74,118 @@ const FreeGuide = () => {
     name: '',
     email: ''
   })
+  const [activeGuide, setActiveGuide] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchActiveGuide()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const fetchActiveGuide = async () => {
+    try {
+      const response = await fetch('/api/free-guide/active')
+      if (response.ok) {
+        const data = await response.json()
+        setActiveGuide(data)
+      }
+    } catch (error) {
+      console.error('Error fetching guide:', error)
+    }
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log('Form submitted:', formData)
-    alert('Thank you! Your guide will be sent to your email shortly.')
-    setFormData({ name: '', email: '' })
+    
+    // Validate form
+    if (!formData.name || !formData.email) {
+      alert('Please fill in all required fields.')
+      return
+    }
+
+    setSubmitting(true)
+
+    try {
+      if (!activeGuide) {
+        alert('Guide is not available at the moment. Please try again later.')
+        setSubmitting(false)
+        return
+      }
+
+      if (!activeGuide.fileUrl) {
+        alert('Guide file is not available. Please contact support.')
+        setSubmitting(false)
+        return
+      }
+
+      // Create download record
+      const downloadResponse = await fetch('/api/free-guide/downloads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          guideId: activeGuide.id,
+          fullName: formData.name,
+          email: formData.email,
+        }),
+      })
+
+      if (downloadResponse.ok) {
+        // Construct file URL - check if it's already a full URL
+        let fileUrl = activeGuide.fileUrl
+        if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
+          // If it starts with /uploads, use it as is, otherwise prepend /uploads
+          if (!fileUrl.startsWith('/uploads/') && !fileUrl.startsWith('/')) {
+            fileUrl = `/uploads/${fileUrl}`
+          } else if (!fileUrl.startsWith('/')) {
+            fileUrl = `/${fileUrl}`
+          }
+        }
+
+        // Download the file
+        try {
+          // Fetch the file as a blob to ensure proper download
+          const fileResponse = await fetch(fileUrl)
+          if (!fileResponse.ok) {
+            throw new Error('Failed to fetch file')
+          }
+          
+          const blob = await fileResponse.blob()
+          const blobUrl = window.URL.createObjectURL(blob)
+          
+          const link = document.createElement('a')
+          link.href = blobUrl
+          link.download = activeGuide.fileName || 'guide.pdf'
+          link.style.display = 'none'
+          document.body.appendChild(link)
+          link.click()
+          
+          // Clean up
+          setTimeout(() => {
+            document.body.removeChild(link)
+            window.URL.revokeObjectURL(blobUrl)
+          }, 100)
+
+          alert('Thank you! Your guide download has started.')
+          setFormData({ name: '', email: '' })
+        } catch (downloadError) {
+          console.error('Error downloading file:', downloadError)
+          // Fallback: try direct link
+          window.open(fileUrl, '_blank')
+          alert('Thank you! Your guide download has started.')
+          setFormData({ name: '', email: '' })
+        }
+      } else {
+        const errorData = await downloadResponse.json().catch(() => ({ message: 'Failed to record download' }))
+        throw new Error(errorData.message || 'Failed to record download')
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      alert(`Error submitting form: ${error.message || 'Please try again.'}`)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleChange = (e) => {
@@ -92,7 +197,7 @@ const FreeGuide = () => {
 
   const stats = [
     { value: '50+', label: 'Pages of Insights' },
-    { value: '15K+', label: 'Downloads' },
+    { value: activeGuide?.downloadCount ? `${activeGuide.downloadCount}+` : '15K+', label: 'Downloads' },
     { value: '$2.5M', label: 'Avg. Savings' },
   ]
 
@@ -126,11 +231,13 @@ const FreeGuide = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
           {/* Left Side - Content */}
           <div className="space-y-8">
-            {/* Download Button */}
-            <button className="flex items-center gap-2 px-6 py-3 bg-primary text-black font-semibold rounded-lg hover:bg-primary-dark transition-colors">
-              <Download className="w-5 h-5" />
-              Free Download
-            </button>
+            {/* Notification Badge */}
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                <Bell className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-primary text-sm font-semibold">Free Download Available</span>
+            </div>
 
             {/* Heading */}
             <div>
@@ -204,7 +311,7 @@ const FreeGuide = () => {
               <div>
                 <h3 className="text-2xl font-bold text-white mb-2">Download Your Free Guide</h3>
                 <p className="text-gray-400 text-sm mb-6">
-                  Join 15,000+ investors who've downloaded this guide.
+                  Join 15,000+ investors who&apos;ve downloaded this guide.
                 </p>
               </div>
 
@@ -243,10 +350,11 @@ const FreeGuide = () => {
 
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-primary text-black font-bold rounded-lg hover:bg-primary-dark transition-colors"
+                  disabled={submitting || !activeGuide}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-primary text-black font-bold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Download className="w-5 h-5" />
-                  Get My Free Guide Now
+                  {submitting ? 'Processing...' : 'Get My Free Guide Now'}
                 </button>
               </form>
 
@@ -313,7 +421,7 @@ const FreeGuide = () => {
                 </div>
                 {testimonial.testimonial && (
                   <p className="text-gray-300 italic leading-relaxed">
-                    "{testimonial.testimonial}"
+                    &ldquo;{testimonial.testimonial}&rdquo;
                   </p>
                 )}
               </div>

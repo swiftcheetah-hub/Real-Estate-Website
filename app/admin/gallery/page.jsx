@@ -13,10 +13,9 @@ export default function GalleryManagement() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState(null)
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-
   useEffect(() => {
     fetchGalleryItems()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchGalleryItems = async () => {
@@ -29,7 +28,7 @@ export default function GalleryManagement() {
         return
       }
 
-      const response = await fetch(`${API_URL}/gallery`, {
+      const response = await fetch('/api/gallery', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -66,51 +65,55 @@ export default function GalleryManagement() {
         return
       }
 
-      let imageUrl = formData.imageUrl
+      const saveFormData = new FormData()
+      saveFormData.append('name', formData.name)
+      saveFormData.append('role', formData.role)
+      saveFormData.append('displayOrder', formData.displayOrder || 0)
+      saveFormData.append('isActive', formData.isActive ? 'true' : 'false')
+      
+      // Determine mediaType based on what's uploaded
+      let mediaType = 'image'
+      if (formData.videoFile || formData.videoUrl) {
+        mediaType = 'video'
+      } else if (formData.imageFile || formData.imageUrl) {
+        mediaType = 'image'
+      }
+      saveFormData.append('mediaType', mediaType)
 
-      // Upload image if file is provided
+      // Upload image file if provided
       if (formData.imageFile) {
-        const uploadFormData = new FormData()
-        uploadFormData.append('image', formData.imageFile)
+        saveFormData.append('files', formData.imageFile)
+      }
 
-        const uploadResponse = await fetch(`${API_URL}/upload/image`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-          body: uploadFormData,
-        })
+      // Upload video file if provided
+      if (formData.videoFile) {
+        saveFormData.append('files', formData.videoFile)
+      }
 
-        if (uploadResponse.ok) {
-          const uploadData = await uploadResponse.json()
-          imageUrl = uploadData.url
+      // If editing and no new files, keep existing URLs
+      if (isEditMode && !formData.imageFile && !formData.videoFile) {
+        if (formData.imageUrl) {
+          saveFormData.append('imageUrl', formData.imageUrl)
+        }
+        if (formData.videoUrl) {
+          saveFormData.append('videoUrl', formData.videoUrl)
         }
       }
 
-      const { imageFile, ...galleryData } = formData
-      const payload = { ...galleryData, imageUrl }
-
       let response
+      const method = isEditMode ? 'PATCH' : 'POST'
+      const url = isEditMode
+        ? `/api/gallery/${selectedGalleryItem.id}`
+        : '/api/gallery'
 
-      if (isEditMode) {
-        response = await fetch(`${API_URL}/gallery/${selectedGalleryItem.id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        })
-      } else {
-        response = await fetch(`${API_URL}/gallery`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        })
-      }
+      response = await fetch(url, {
+        method: method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          // Don't set Content-Type for FormData, browser will set it with boundary
+        },
+        body: saveFormData,
+      })
 
       if (response.ok) {
         await fetchGalleryItems()
@@ -143,7 +146,7 @@ export default function GalleryManagement() {
   const handleDeleteConfirm = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/gallery/${itemToDelete.id}`, {
+      const response = await fetch(`/api/gallery/${itemToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

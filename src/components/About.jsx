@@ -7,15 +7,15 @@ import { useScrollAnimation } from '../hooks/useScrollAnimation'
 const About = () => {
   const [sectionRef, sectionVisible] = useScrollAnimation({ threshold: 0.1 })
   const [timeline, setTimeline] = useState([])
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
   useEffect(() => {
     fetchJourneys()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchJourneys = async () => {
     try {
-      const response = await fetch(`${API_URL}/journeys/public`)
+      const response = await fetch('/api/journeys/public')
       if (response.ok) {
         const data = await response.json()
         setTimeline(data)
@@ -150,7 +150,7 @@ const About = () => {
                 Elite Properties was born from a shared vision between Sarah Mitchell and Michael Chen to revolutionize the luxury real estate experience. After years of working independently and witnessing the gaps in traditional real estate services, they decided to create an agency that puts clients first and delivers exceptional results.
               </p>
               <p>
-                What started as a two-person operation has grown into one of the most respected real estate teams in the region. Our success is built on a foundation of integrity, market expertise, and an unwavering commitment to our clients' goals.
+                What started as a two-person operation has grown into one of the most respected real estate teams in the region. Our success is built on a foundation of integrity, market expertise, and an unwavering commitment to our clients&apos; goals.
               </p>
               <p>
                 Today, we continue to push boundaries, embracing innovative technology and marketing strategies while maintaining the personal touch that has become our hallmark. Every property we represent and every client we serve receives our full dedication and expertise.

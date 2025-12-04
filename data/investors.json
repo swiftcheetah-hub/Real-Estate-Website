@@ -1,0 +1,35 @@
+[
+  {
+    "id": "i1a2b3c4-d5e6-4789-a0b1-c2d3e4f5a6b7",
+    "name": "Jessica Martinez",
+    "role": "Real Estate Investor",
+    "imageUrl": "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400",
+    "testimonial": "This guide helped me identify profitable investment opportunities I would have missed otherwise.",
+    "displayOrder": 0,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "i2b3c4d5-e6f7-4890-b1c2-d3e4f5a6b7c8",
+    "name": "David Park",
+    "role": "First-Time Buyer",
+    "imageUrl": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400",
+    "testimonial": "Clear, actionable insights that gave me confidence in making my first luxury property purchase.",
+    "displayOrder": 1,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "i3c4d5e6-f7a8-4901-b2c3-d4e5f6a7b8c9",
+    "name": "Amanda Roberts",
+    "role": "Portfolio Manager",
+    "imageUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400",
+    "testimonial": "The market analysis section alone is worth thousands. Essential reading for serious investors.",
+    "displayOrder": 2,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  }
+]

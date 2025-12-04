@@ -15,10 +15,9 @@ export default function PropertiesManagement() {
   const [propertyToDelete, setPropertyToDelete] = useState(null)
   const router = useRouter()
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-
   useEffect(() => {
     fetchProperties()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchProperties = async () => {
@@ -30,7 +29,7 @@ export default function PropertiesManagement() {
         return
       }
 
-      const response = await fetch(`${API_URL}/properties`, {
+      const response = await fetch('/api/properties', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -99,8 +98,8 @@ export default function PropertiesManagement() {
       let response
       const method = isEditMode ? 'PATCH' : 'POST'
       const url = isEditMode 
-        ? `${API_URL}/properties/${selectedProperty.id}` 
-        : `${API_URL}/properties`
+        ? `/api/properties/${selectedProperty.id}` 
+        : `/api/properties`
 
       response = await fetch(url, {
         method: method,
@@ -147,7 +146,7 @@ export default function PropertiesManagement() {
         return
       }
 
-      const response = await fetch(`${API_URL}/properties/${propertyToDelete.id}`, {
+      const response = await fetch(`/api/properties/${propertyToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

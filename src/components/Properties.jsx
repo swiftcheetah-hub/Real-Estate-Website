@@ -11,16 +11,16 @@ const Properties = () => {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const [sectionRef, sectionVisible] = useScrollAnimation({ threshold: 0.1 })
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
   useEffect(() => {
     fetchProperties()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchProperties = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${API_URL}/properties/public`)
+      const response = await fetch('/api/properties/public')
       if (response.ok) {
         const data = await response.json()
         // Map backend data to frontend format

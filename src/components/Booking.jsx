@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Calendar, Clock, User, CheckCircle, ArrowRight, ArrowLeft, Star, ChevronDown } from 'lucide-react'
 import { useScrollAnimation } from '../hooks/useScrollAnimation'
 
@@ -21,6 +21,61 @@ const Booking = () => {
   })
   const [bookingComplete, setBookingComplete] = useState(false)
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [agents, setAgents] = useState([])
+
+  useEffect(() => {
+    fetchAgents()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const fetchAgents = async () => {
+    try {
+      const response = await fetch('/api/agents/public')
+      if (response.ok) {
+        const data = await response.json()
+        // Transform agents data to include 'both' option
+        const agentsList = [
+          {
+            id: 'both',
+            name: 'Both Agents Available',
+            description: "We'll assign the best available agent for your property",
+            recommended: true,
+          },
+          ...data.map((agent) => ({
+            id: agent.id,
+            name: agent.name,
+            specialty: agent.role,
+            rating: 4.9, // Default rating
+            image: agent.imageUrl,
+          })),
+        ]
+        setAgents(agentsList)
+      }
+    } catch (error) {
+      console.error('Error fetching agents:', error)
+      // Fallback to default agents
+      setAgents([
+        {
+          id: 'both',
+          name: 'Both Agents Available',
+          description: "We'll assign the best available agent for your property",
+          recommended: true,
+        },
+        {
+          id: 'sarah',
+          name: 'Sarah Mitchell',
+          specialty: 'Luxury Residential',
+          rating: 4.9,
+        },
+        {
+          id: 'michael',
+          name: 'Michael Chen',
+          specialty: 'Commercial & Investment',
+          rating: 4.9,
+        },
+      ])
+    }
+  }
 
   const timeSlots = [
     '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM',
@@ -36,30 +91,6 @@ const Booking = () => {
     'Land',
   ]
 
-  const agents = [
-    {
-      id: 'both',
-      name: 'Both Agents Available',
-      description: "We'll assign the best available agent for your property",
-      recommended: true,
-      image1: 'https://images.unsplash.com/photo-1652878530627-cc6f063e3947?w=600',
-      image2: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600',
-    },
-    {
-      id: 'sarah',
-      name: 'Sarah Mitchell',
-      specialty: 'Luxury Residential',
-      rating: 4.9,
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600',
-    },
-    {
-      id: 'michael',
-      name: 'Michael Chen',
-      specialty: 'Commercial & Investment',
-      rating: 4.9,
-      image: 'https://images.unsplash.com/photo-1652878530627-cc6f063e3947?w=600',
-    },
-  ]
 
   const benefits = [
     {
@@ -128,9 +159,56 @@ const Booking = () => {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setBookingComplete(true)
+    
+    try {
+      // Format the appointment date
+      const appointmentDate = selectedDate.toISOString()
+      
+      // Determine agentId and agentPreference
+      let agentId = undefined
+      let agentPreference = selectedAgent
+      
+      // If selectedAgent is a UUID (not 'both', 'sarah', or 'michael'), it's an actual agent ID
+      if (selectedAgent && selectedAgent !== 'both' && selectedAgent !== 'sarah' && selectedAgent !== 'michael') {
+        agentId = selectedAgent
+        agentPreference = undefined
+      }
+
+      // Prepare booking data
+      const bookingData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        propertyAddress: formData.address || undefined,
+        propertyType: formData.propertyType || undefined,
+        notes: formData.notes || undefined,
+        appointmentDate: appointmentDate,
+        appointmentTime: selectedTime,
+        agentId: agentId,
+        agentPreference: agentPreference,
+      }
+
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      })
+
+      if (response.ok) {
+        setBookingComplete(true)
+      } else {
+        const error = await response.json().catch(() => ({ message: 'Failed to book appraisal' }))
+        alert(`Error: ${error.message || 'Failed to book appraisal. Please try again.'}`)
+      }
+    } catch (error) {
+      console.error('Error submitting booking:', error)
+      alert('Error submitting booking. Please check your connection and try again.')
+    }
   }
 
   if (bookingComplete) {
@@ -208,7 +286,7 @@ const Booking = () => {
             Book Property <span className="text-primary">Appraisal</span>
           </h2>
           <p className="text-gray-300 text-lg max-w-3xl mx-auto">
-            Get a professional property valuation from our expert agents. Schedule a convenient time for a comprehensive assessment of your property's market value.
+            Get a professional property valuation from our expert agents. Schedule a convenient time for a comprehensive assessment of your property&apos;s market value.
           </p>
         </div>
 
@@ -377,43 +455,61 @@ const Booking = () => {
 
                   <div className="space-y-4">
                     {/* Both Agents Option */}
-                    <button
-                      onClick={() => setSelectedAgent('both')}
-                      className={`w-full bg-dark-lighter rounded-xl p-6 border-2 transition-all text-left ${
-                        selectedAgent === 'both'
-                          ? 'border-primary bg-primary/10'
-                          : 'border-gray-700 hover:border-primary/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="relative">
-                          <div className="w-16 h-16 rounded-full border-2 border-primary overflow-hidden">
-                            <img
-                              src={agents[0].image1}
-                              alt="Agent 1"
-                              className="w-full h-full object-cover"
-                            />
+                    {agents.length > 0 && agents[0].id === 'both' && (
+                      <button
+                        onClick={() => setSelectedAgent('both')}
+                        className={`w-full bg-dark-lighter rounded-xl p-6 border-2 transition-all text-left ${
+                          selectedAgent === 'both'
+                            ? 'border-primary bg-primary/10'
+                            : 'border-gray-700 hover:border-primary/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="relative">
+                            {agents.length > 1 && agents[1].image ? (
+                              <>
+                                <div className="w-16 h-16 rounded-full border-2 border-primary overflow-hidden bg-dark">
+                                  <img
+                                    src={agents[1].image}
+                                    alt="Agent 1"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.target.style.display = 'none'
+                                    }}
+                                  />
+                                </div>
+                                {agents.length > 2 && agents[2].image && (
+                                  <div className="absolute -bottom-1 -right-1 w-12 h-12 rounded-full border-2 border-dark overflow-hidden bg-dark">
+                                    <img
+                                      src={agents[2].image}
+                                      alt="Agent 2"
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.target.style.display = 'none'
+                                      }}
+                                    />
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div className="w-16 h-16 rounded-full border-2 border-primary bg-primary/20 flex items-center justify-center">
+                                <User className="w-8 h-8 text-primary" />
+                              </div>
+                            )}
                           </div>
-                          <div className="absolute -bottom-1 -right-1 w-12 h-12 rounded-full border-2 border-dark overflow-hidden">
-                            <img
-                              src={agents[0].image2}
-                              alt="Agent 2"
-                              className="w-full h-full object-cover"
-                            />
+                          <div className="flex-1">
+                            <h4 className="text-xl font-bold mb-1 text-white">{agents[0].name}</h4>
+                            <p className="text-gray-400 mb-2">{agents[0].description}</p>
+                            {selectedAgent === 'both' && (
+                              <div className="flex items-center gap-2 text-primary">
+                                <CheckCircle className="w-5 h-5" />
+                                <span className="text-sm font-semibold">Recommended - Fastest Availability</span>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <div className="flex-1">
-                          <h4 className="text-xl font-bold mb-1 text-white">{agents[0].name}</h4>
-                          <p className="text-gray-400 mb-2">{agents[0].description}</p>
-                          {selectedAgent === 'both' && (
-                            <div className="flex items-center gap-2 text-primary">
-                              <CheckCircle className="w-5 h-5" />
-                              <span className="text-sm font-semibold">Recommended - Fastest Availability</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </button>
+                      </button>
+                    )}
 
                     {/* Separator */}
                     <div className="flex items-center gap-4 my-6">
@@ -423,7 +519,7 @@ const Booking = () => {
                     </div>
 
                     {/* Individual Agents */}
-                    {agents.slice(1).map((agent) => (
+                    {agents.filter(a => a.id !== 'both').map((agent) => (
                       <button
                         key={agent.id}
                         onClick={() => setSelectedAgent(agent.id)}
@@ -434,11 +530,20 @@ const Booking = () => {
                         }`}
                       >
                         <div className="flex items-center gap-4">
-                          <img
-                            src={agent.image}
-                            alt={agent.name}
-                            className="w-16 h-16 rounded-full border-2 border-primary/30 object-cover"
-                          />
+                          {agent.image ? (
+                            <img
+                              src={agent.image}
+                              alt={agent.name}
+                              className="w-16 h-16 rounded-full border-2 border-primary/30 object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none'
+                                e.target.nextSibling.style.display = 'flex'
+                              }}
+                            />
+                          ) : null}
+                          <div className={`w-16 h-16 rounded-full border-2 border-primary/30 ${agent.image ? 'hidden' : 'flex'} items-center justify-center bg-dark`}>
+                            <User className="w-8 h-8 text-primary" />
+                          </div>
                           <div className="flex-1">
                             <h4 className="text-xl font-bold mb-1 text-white">{agent.name}</h4>
                             <p className="text-gray-400 mb-2">{agent.specialty}</p>

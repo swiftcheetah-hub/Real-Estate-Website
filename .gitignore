@@ -36,3 +36,6 @@ lerna-debug.log*
 *.sw?
 
 .env
+
+# Database file (optional - uncomment if you don't want to version control it)
+# data/database.json

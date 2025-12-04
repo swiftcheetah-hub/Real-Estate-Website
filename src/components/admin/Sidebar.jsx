@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { User, UserPlus, Calendar, TrendingUp, Quote, Phone, Image as ImageIcon, Home } from 'lucide-react'
+import { User, UserPlus, Calendar, TrendingUp, Quote, Phone, Image as ImageIcon, Home, CalendarCheck, FileText, Users, Mail } from 'lucide-react'
 
 const Sidebar = () => {
   const pathname = usePathname()
@@ -56,6 +56,30 @@ const Sidebar = () => {
       href: '/admin/gallery',
       icon: ImageIcon,
       active: pathname === '/admin/gallery',
+    },
+    {
+      name: 'Appraisal Bookings',
+      href: '/admin/bookings',
+      icon: CalendarCheck,
+      active: pathname === '/admin/bookings',
+    },
+    {
+      name: 'Free Guide Management',
+      href: '/admin/free-guide',
+      icon: FileText,
+      active: pathname === '/admin/free-guide',
+    },
+    {
+      name: 'Match Buyer Management',
+      href: '/admin/buyers',
+      icon: Users,
+      active: pathname === '/admin/buyers',
+    },
+    {
+      name: 'Buyer Enquiry History',
+      href: '/admin/buyer-enquiries',
+      icon: Mail,
+      active: pathname === '/admin/buyer-enquiries',
     },
   ]
 

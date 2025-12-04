@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1fc22e03-56d8-452b-90dc-8f104b3546d9",
+    "firstName": "1",
+    "lastName": "1",
+    "email": "test@gmail.com",
+    "phone": "1",
+    "propertyAddress": "1",
+    "propertyType": "Single Family Home",
+    "notes": "1",
+    "appointmentDate": "2025-12-15T15:00:00.000Z",
+    "appointmentTime": "11:00 AM",
+    "agentId": null,
+    "agentPreference": "both",
+    "isRead": true,
+    "status": "pending",
+    "createdAt": "2025-12-04T11:45:36.374Z",
+    "updatedAt": "2025-12-04T18:52:34.783Z"
+  },
+  {
+    "id": "2fae7365-9fa2-4680-ab2d-b96414b91e4a",
+    "firstName": "1",
+    "lastName": "1",
+    "email": "test@gmail.com",
+    "phone": "1",
+    "propertyAddress": "1234 Sunset Boulevard, Beverly Hills, CA 90210",
+    "propertyType": "Condo/Apartment",
+    "notes": "1",
+    "appointmentDate": "2025-12-29T15:00:00.000Z",
+    "appointmentTime": "11:00 AM",
+    "agentId": "a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7",
+    "agentPreference": null,
+    "isRead": true,
+    "status": "pending",
+    "createdAt": "2025-12-04T11:54:43.827Z",
+    "updatedAt": "2025-12-04T18:52:30.549Z"
+  }
+]

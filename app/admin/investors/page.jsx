@@ -13,10 +13,9 @@ export default function InvestorManagement() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [investorToDelete, setInvestorToDelete] = useState(null)
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-
   useEffect(() => {
     fetchInvestors()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchInvestors = async () => {
@@ -29,7 +28,7 @@ export default function InvestorManagement() {
         return
       }
 
-      const response = await fetch(`${API_URL}/investors`, {
+      const response = await fetch('/api/investors', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -73,7 +72,7 @@ export default function InvestorManagement() {
         const uploadFormData = new FormData()
         uploadFormData.append('image', formData.imageFile)
 
-        const uploadResponse = await fetch(`${API_URL}/upload/image`, {
+        const uploadResponse = await fetch('/api/upload/image', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -93,7 +92,7 @@ export default function InvestorManagement() {
       let response
 
       if (isEditMode) {
-        response = await fetch(`${API_URL}/investors/${selectedInvestor.id}`, {
+        response = await fetch(`/api/investors/${selectedInvestor.id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -102,7 +101,7 @@ export default function InvestorManagement() {
           body: JSON.stringify(payload),
         })
       } else {
-        response = await fetch(`${API_URL}/investors`, {
+        response = await fetch('/api/investors', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -143,7 +142,7 @@ export default function InvestorManagement() {
   const handleDeleteConfirm = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/investors/${investorToDelete.id}`, {
+      const response = await fetch(`/api/investors/${investorToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

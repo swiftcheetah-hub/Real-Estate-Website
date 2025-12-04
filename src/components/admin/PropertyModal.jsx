@@ -36,8 +36,6 @@ const PropertyModal = ({ isOpen, onClose, property = null, onSave }) => {
   const isEditMode = !!property
   const router = useRouter()
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-
   useEffect(() => {
     if (isOpen) {
       if (property) {
@@ -101,7 +99,7 @@ const PropertyModal = ({ isOpen, onClose, property = null, onSave }) => {
           router.push('/admin/login')
           return
         }
-        const response = await fetch(`${API_URL}/agents`, {
+        const response = await fetch('/api/agents', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -122,7 +120,7 @@ const PropertyModal = ({ isOpen, onClose, property = null, onSave }) => {
     if (isOpen) {
       fetchAgents()
     }
-  }, [isOpen, API_URL, router])
+  }, [isOpen, router])
 
   useEffect(() => {
     if (isOpen) {

@@ -7,15 +7,15 @@ import { useScrollAnimation } from '../hooks/useScrollAnimation'
 const Reviews = () => {
   const [sectionRef, sectionVisible] = useScrollAnimation({ threshold: 0.1 })
   const [reviews, setReviews] = useState([])
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
   useEffect(() => {
     fetchReviews()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch(`${API_URL}/reviews/public`)
+      const response = await fetch('/api/reviews/public')
       if (response.ok) {
         const data = await response.json()
         setReviews(data)

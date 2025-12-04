@@ -1,0 +1,58 @@
+[
+  {
+    "id": "a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7",
+    "name": "Imran Chowdhury",
+    "role": "Senior Real Estate Agent & Co-Founder",
+    "email": "imran@eliteproperties.com",
+    "phone": "+1 (555) 123-4567",
+    "imageUrl": "https://cdn6.ep.dynamics.net/s3/rw-media/memberphotos/b848290e-2702-4394-99c5-d56874cb0654.png?height=828&maxheight=2560&maxwidth=2560&quality=90&scale=both&width=828&format=webp",
+    "description": "Imran is a dedicated and dynamic real estate agent based in Auckland, New Zealand, known for his client-centric approach and innovative use of technology in the property market. With a robust background in Information Technology, Imran brings a unique edge to his real estate career, seamlessly blending technical expertise with a deep passion for helping clients achieve their property goals. Before entering real estate, Imran spent over a decade in the IT industry.",
+    "education": "MBA, Harvard Business School",
+    "specialties": [
+      "Luxury Residential",
+      "Investment Properties",
+      "Waterfront Estates"
+    ],
+    "certifications": [
+      "Certified Luxury Home Marketing Specialist",
+      "Accredited Buyer's Representative"
+    ],
+    "achievements": [
+      "Top 1% of agents nationwide",
+      "$150M+ in career sales",
+      "200+ satisfied clients"
+    ],
+    "displayOrder": 0,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  },
+  {
+    "id": "b2c3d4e5-f6a7-4890-b1c2-d3e4f5a6b7c8",
+    "name": "Rafsan Hasan",
+    "role": "Senior Real Estate Agent & Co-Founder",
+    "email": "rafsan@eliteproperties.com",
+    "phone": "+1 (555) 234-5678",
+    "imageUrl": "https://cdn6.ep.dynamics.net/s3/rw-media/memberphotos/0cb305ee-6c8d-48c2-90c6-9023200ae177.jpg?height=828&maxheight=2560&maxwidth=2560&quality=90&scale=both&width=828&format=webp",
+    "description": "Having helped over 30 families achieve their property dreams, Rafsan knows exactly what it takes to sell your home for top dollar or secure the right property at the right price. His proven track record, combined with strong negotiation skills and a genuine passion for helping people, makes him the agent you want on your side.",
+    "education": "B.S. Finance, UC Berkeley",
+    "specialties": [
+      "Commercial Real Estate",
+      "New Developments",
+      "Property Investment"
+    ],
+    "certifications": [
+      "Certified Commercial Investment Member",
+      "Senior Real Estate Specialist"
+    ],
+    "achievements": [
+      "Multi-million dollar deal closer",
+      "$100M+ in career sales",
+      "180+ successful transactions"
+    ],
+    "displayOrder": 1,
+    "isActive": true,
+    "createdAt": "2025-12-04T10:00:00.000Z",
+    "updatedAt": "2025-12-04T10:00:00.000Z"
+  }
+]

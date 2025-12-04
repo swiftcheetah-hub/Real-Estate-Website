@@ -8,8 +8,40 @@ import MessageBox from './MessageBox'
 
 const TopBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [siteSettings, setSiteSettings] = useState(null)
+  const [adminProfile, setAdminProfile] = useState(null)
   const dropdownRef = useRef(null)
   const router = useRouter()
+
+  // Fetch site settings and admin profile
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      // Fetch site settings
+      fetch('/api/site-settings', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+        .then(res => res.json())
+        .then(data => setSiteSettings(data))
+        .catch(err => console.error('Error fetching site settings:', err))
+
+      // Fetch admin profile
+      fetch('/api/admin/profile', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+        .then(res => res.json())
+        .then(data => setAdminProfile(data))
+        .catch(err => console.error('Error fetching admin profile:', err))
+    }
+  }, [])
+
+  // Get first letter of admin's full name
+  const getInitial = () => {
+    if (adminProfile?.fullName) {
+      return adminProfile.fullName.charAt(0).toUpperCase()
+    }
+    return 'A' // Default fallback
+  }
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -35,8 +67,7 @@ const TopBar = () => {
   }
 
   const handleAddMyPage = () => {
-    // TODO: Implement add my page logic
-    console.log('Add My Page clicked')
+    router.push('/admin/my-page')
     setIsDropdownOpen(false)
   }
 
@@ -45,12 +76,20 @@ const TopBar = () => {
       <div className="flex items-center justify-between h-full px-6">
         {/* Left - Logo */}
         <Link href="/admin" className="flex items-center space-x-2">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-            <Building2 className="w-6 h-6 text-black" />
-          </div>
+          {siteSettings?.logoUrl ? (
+            <img
+              src={siteSettings.logoUrl}
+              alt={siteSettings.siteName || 'Logo'}
+              className="h-10 w-auto object-contain"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+              <Building2 className="w-6 h-6 text-black" />
+            </div>
+          )}
           <div className="flex flex-col">
             <span className="text-lg font-bold text-white">Admin Panel</span>
-            <span className="text-xs text-gray-400">Elite Properties</span>
+            <span className="text-xs text-gray-400">{siteSettings?.siteName || 'Elite Properties'}</span>
           </div>
         </Link>
 
@@ -65,7 +104,7 @@ const TopBar = () => {
           >
             {/* Avatar */}
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center border-2 border-primary/30">
-              <span className="text-black font-bold text-sm">A</span>
+              <span className="text-black font-bold text-sm">{getInitial()}</span>
             </div>
             {/* Dropdown Icon */}
             <ChevronDown

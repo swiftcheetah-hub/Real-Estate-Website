@@ -14,10 +14,9 @@ export default function JourneyManagement() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [journeyToDelete, setJourneyToDelete] = useState(null)
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-
   useEffect(() => {
     fetchJourneys()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchJourneys = async () => {
@@ -31,7 +30,7 @@ export default function JourneyManagement() {
         return
       }
 
-      const response = await fetch(`${API_URL}/journeys`, {
+      const response = await fetch('/api/journeys', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -73,7 +72,7 @@ export default function JourneyManagement() {
       let response
 
       if (isEditMode) {
-        response = await fetch(`${API_URL}/journeys/${selectedJourney.id}`, {
+        response = await fetch(`/api/journeys/${selectedJourney.id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -82,7 +81,7 @@ export default function JourneyManagement() {
           body: JSON.stringify(formData),
         })
       } else {
-        response = await fetch(`${API_URL}/journeys`, {
+        response = await fetch('/api/journeys', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -123,7 +122,7 @@ export default function JourneyManagement() {
   const handleDeleteConfirm = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/journeys/${journeyToDelete.id}`, {
+      const response = await fetch(`/api/journeys/${journeyToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Building2, Users, Home, Star, Image, BookOpen, Mail, Calendar, TrendingUp, Quote, Phone, Plus } from 'lucide-react'
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState([
+      const [stats, setStats] = useState([
     { label: 'Total Properties', value: '0', icon: Home, color: 'text-blue-400', loading: true },
     { label: 'Total Agents', value: '0', icon: Users, color: 'text-green-400', loading: true },
     { label: 'Total Reviews', value: '0', icon: Star, color: 'text-yellow-400', loading: true },
@@ -14,14 +14,15 @@ export default function AdminDashboard() {
     { label: 'Investors', value: '0', icon: TrendingUp, color: 'text-pink-400', loading: true },
     { label: 'Contact Messages', value: '0', icon: Mail, color: 'text-red-400', loading: true },
     { label: 'Journey Milestones', value: '0', icon: Calendar, color: 'text-orange-400', loading: true },
+    { label: 'Match Buyers', value: '0', icon: Users, color: 'text-cyan-400', loading: true },
   ])
   const [recentMessages, setRecentMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
   useEffect(() => {
     fetchDashboardData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchDashboardData = async () => {
@@ -37,14 +38,15 @@ export default function AdminDashboard() {
       }
 
       // Fetch all data in parallel
-      const [propertiesRes, agentsRes, reviewsRes, galleryRes, investorsRes, messagesRes, journeysRes] = await Promise.all([
-        fetch(`${API_URL}/properties`, { headers }).catch(() => ({ ok: false })),
-        fetch(`${API_URL}/agents`, { headers }).catch(() => ({ ok: false })),
-        fetch(`${API_URL}/reviews`, { headers }).catch(() => ({ ok: false })),
-        fetch(`${API_URL}/gallery`, { headers }).catch(() => ({ ok: false })),
-        fetch(`${API_URL}/investors`, { headers }).catch(() => ({ ok: false })),
-        fetch(`${API_URL}/messages`, { headers }).catch(() => ({ ok: false })),
-        fetch(`${API_URL}/journeys`, { headers }).catch(() => ({ ok: false })),
+      const [propertiesRes, agentsRes, reviewsRes, galleryRes, investorsRes, messagesRes, journeysRes, buyersRes] = await Promise.all([
+        fetch('/api/properties', { headers }).catch(() => ({ ok: false })),
+        fetch('/api/agents', { headers }).catch(() => ({ ok: false })),
+        fetch('/api/reviews', { headers }).catch(() => ({ ok: false })),
+        fetch('/api/gallery', { headers }).catch(() => ({ ok: false })),
+        fetch('/api/investors', { headers }).catch(() => ({ ok: false })),
+        fetch('/api/messages', { headers }).catch(() => ({ ok: false })),
+        fetch('/api/journeys', { headers }).catch(() => ({ ok: false })),
+        fetch('/api/buyers/admin', { headers }).catch(() => ({ ok: false })),
       ])
 
       // Update stats
@@ -102,6 +104,13 @@ export default function AdminDashboard() {
         newStats[6] = { ...newStats[6], value: data.length.toString(), loading: false }
       } else {
         newStats[6] = { ...newStats[6], loading: false }
+      }
+
+      if (buyersRes.ok) {
+        const data = await buyersRes.json()
+        newStats[7] = { ...newStats[7], value: data.length.toString(), loading: false }
+      } else {
+        newStats[7] = { ...newStats[7], loading: false }
       }
 
       setStats(newStats)

@@ -12,18 +12,18 @@ const MessageBox = () => {
   const dropdownRef = useRef(null)
   const router = useRouter()
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-
   useEffect(() => {
     fetchUnreadCount()
     const interval = setInterval(fetchUnreadCount, 30000) // Poll every 30 seconds
     return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
     if (isOpen) {
       fetchRecentMessages()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   useEffect(() => {
@@ -47,22 +47,41 @@ const MessageBox = () => {
       const token = localStorage.getItem('token')
       if (!token) return
 
-      const response = await fetch(`${API_URL}/messages/unread-count`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
+      // Fetch messages, bookings, guide downloads, and buyer enquiries unread counts
+      const [messagesRes, bookingsRes, guideDownloadsRes, buyerEnquiriesRes] = await Promise.all([
+        fetch('/api/messages/unread-count', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        }).catch(() => ({ ok: false })),
+        fetch('/api/bookings/unread-count', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        }).catch(() => ({ ok: false })),
+        fetch('/api/free-guide/downloads/unread-count', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        }).catch(() => ({ ok: false })),
+        fetch('/api/buyers/enquiries/unread-count', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        }).catch(() => ({ ok: false })),
+      ])
 
-      if (response.ok) {
-        const data = await response.json()
-        const previousCount = unreadCount
-        setUnreadCount(data)
-        
-        // Show notification if new messages arrived
-        if (data > previousCount && previousCount > 0) {
-          // You could add a toast notification here
-        }
+      let totalUnread = 0
+      if (messagesRes.ok) {
+        const messagesCount = await messagesRes.json()
+        totalUnread += messagesCount
       }
+      if (bookingsRes.ok) {
+        const bookingsCount = await bookingsRes.json()
+        totalUnread += bookingsCount
+      }
+      if (guideDownloadsRes.ok) {
+        const guideDownloadsCount = await guideDownloadsRes.json()
+        totalUnread += guideDownloadsCount
+      }
+      if (buyerEnquiriesRes.ok) {
+        const buyerEnquiriesCount = await buyerEnquiriesRes.json()
+        totalUnread += buyerEnquiriesCount
+      }
+
+      setUnreadCount(totalUnread)
     } catch (error) {
       console.error('Error fetching unread count:', error)
     }
@@ -74,16 +93,112 @@ const MessageBox = () => {
       const token = localStorage.getItem('token')
       if (!token) return
 
-      const response = await fetch(`${API_URL}/messages`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
+      // Fetch messages, bookings, guide downloads, and buyer enquiries
+      const [messagesRes, bookingsRes, guideDownloadsRes, buyerEnquiriesRes] = await Promise.all([
+        fetch('/api/messages', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        }).catch(() => ({ ok: false })),
+        fetch('/api/bookings', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        }).catch(() => ({ ok: false })),
+        fetch('/api/free-guide/downloads', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        }).catch(() => ({ ok: false })),
+        fetch('/api/buyers/enquiries/all', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        }).catch(() => ({ ok: false })),
+      ])
 
-      if (response.ok) {
-        const data = await response.json()
-        setMessages(data.slice(0, 5)) // Show only recent 5 messages
+      const allItems = []
+
+      if (messagesRes.ok) {
+        const messages = await messagesRes.json()
+        messages.forEach((msg) => {
+          allItems.push({
+            id: msg.id,
+            type: 'message',
+            firstName: msg.firstName,
+            lastName: msg.lastName,
+            email: msg.email,
+            message: msg.message,
+            isRead: msg.isRead,
+            createdAt: msg.createdAt,
+          })
+        })
       }
+
+      if (bookingsRes.ok) {
+        const bookings = await bookingsRes.json()
+        bookings.forEach((booking) => {
+          const date = new Date(booking.appointmentDate).toLocaleDateString()
+          const time = booking.appointmentTime
+          const agentName = booking.agentPreference === 'both' 
+            ? 'Best Available Agent' 
+            : booking.agentPreference === 'sarah' 
+            ? 'Sarah Mitchell' 
+            : booking.agentPreference === 'michael'
+            ? 'Michael Chen'
+            : 'Selected Agent'
+          
+          allItems.push({
+            id: booking.id,
+            type: 'booking',
+            firstName: booking.firstName,
+            lastName: booking.lastName,
+            email: booking.email,
+            message: `New Property Appraisal Booking: ${date} at ${time} with ${agentName}. Property: ${booking.propertyAddress || 'Not specified'}`,
+            isRead: booking.isRead,
+            createdAt: booking.createdAt,
+            bookingData: booking,
+          })
+        })
+      }
+
+      if (guideDownloadsRes.ok) {
+        const downloads = await guideDownloadsRes.json()
+        downloads.forEach((download) => {
+          const guideTitle = download.guide?.title || 'Free Guide'
+          allItems.push({
+            id: download.id,
+            type: 'guide-download',
+            firstName: download.fullName.split(' ')[0] || '',
+            lastName: download.fullName.split(' ').slice(1).join(' ') || '',
+            email: download.email,
+            message: `New Free Guide Download: ${download.fullName} downloaded "${guideTitle}"`,
+            isRead: download.isRead,
+            createdAt: download.createdAt,
+            downloadData: download,
+          })
+        })
+      }
+
+      if (buyerEnquiriesRes.ok) {
+        const enquiries = await buyerEnquiriesRes.json()
+        enquiries.forEach((enquiry) => {
+          const buyerInitials = enquiry.buyer?.fullName
+            ? enquiry.buyer.fullName.split(' ').map(n => n[0]).join('').toUpperCase()
+            : 'N/A'
+          allItems.push({
+            id: enquiry.id,
+            type: 'buyer-enquiry',
+            firstName: enquiry.agentName.split(' ')[0] || '',
+            lastName: enquiry.agentName.split(' ').slice(1).join(' ') || '',
+            email: enquiry.agentEmail,
+            message: `New Buyer Enquiry: ${enquiry.agentName} from ${enquiry.agencyOffice} enquired about buyer ${buyerInitials} (${enquiry.preferredSplit} split)`,
+            isRead: enquiry.isRead,
+            createdAt: enquiry.createdAt,
+            enquiryData: enquiry,
+          })
+        })
+      }
+
+      // Sort by date and get recent unread items
+      const recentItems = allItems
+        .filter((item) => !item.isRead)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5)
+      
+      setMessages(recentItems)
     } catch (error) {
       console.error('Error fetching messages:', error)
     } finally {
@@ -94,6 +209,22 @@ const MessageBox = () => {
   const handleViewDetails = () => {
     setIsOpen(false)
     router.push('/admin/messages')
+  }
+
+  const handleItemClick = (item) => {
+    if (item.type === 'booking') {
+      setIsOpen(false)
+      router.push('/admin/bookings')
+    } else if (item.type === 'guide-download') {
+      setIsOpen(false)
+      router.push('/admin/free-guide')
+    } else if (item.type === 'buyer-enquiry') {
+      setIsOpen(false)
+      router.push('/admin/buyer-enquiries')
+    } else {
+      setIsOpen(false)
+      router.push('/admin/messages')
+    }
   }
 
   const formatDate = (dateString) => {
@@ -156,6 +287,7 @@ const MessageBox = () => {
                 {messages.map((message) => (
                   <div
                     key={message.id}
+                    onClick={() => handleItemClick(message)}
                     className={`p-4 hover:bg-dark transition-colors cursor-pointer ${
                       !message.isRead ? 'bg-dark/50' : ''
                     }`}
@@ -179,6 +311,12 @@ const MessageBox = () => {
                     <p className="text-sm text-gray-300 line-clamp-2 mt-2">
                       {message.message}
                     </p>
+                    {message.type === 'booking' && (
+                      <p className="text-xs text-primary mt-1">📅 Property Appraisal Booking</p>
+                    )}
+                    {message.type === 'guide-download' && (
+                      <p className="text-xs text-primary mt-1">📥 Free Guide Download</p>
+                    )}
                     {message.agentName && (
                       <p className="text-xs text-primary mt-1">Agent: {message.agentName}</p>
                     )}
