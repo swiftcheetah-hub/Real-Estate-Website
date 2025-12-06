@@ -45,12 +45,62 @@ export async function POST(request) {
       )
     }
 
-    const body = await request.json()
+    // Parse FormData
+    const formData = await request.formData()
+    const body = {}
+    
+    // Extract all form fields (except files)
+    for (const [key, value] of formData.entries()) {
+      if (key !== 'images' && key !== 'existingImages') {
+        body[key] = value
+      }
+    }
+
+    // Handle existing images (for new properties, this should be empty or undefined)
+    let existingImages = []
+    const existingImagesStr = formData.get('existingImages')
+    if (existingImagesStr) {
+      try {
+        existingImages = JSON.parse(existingImagesStr)
+      } catch (e) {
+        console.error('Error parsing existingImages:', e)
+      }
+    }
+
+    // Process new image files - convert to base64
+    const newImages = []
+    const imageFiles = formData.getAll('images')
+    for (const file of imageFiles) {
+      if (file instanceof File) {
+        try {
+          const arrayBuffer = await file.arrayBuffer()
+          const buffer = Buffer.from(arrayBuffer)
+          const base64 = buffer.toString('base64')
+          const dataUrl = `data:${file.type};base64,${base64}`
+          newImages.push(dataUrl)
+        } catch (e) {
+          console.error('Error processing image file:', e)
+        }
+      }
+    }
+
+    // Combine existing and new images
+    const allImages = [...existingImages, ...newImages]
+
+    // Parse features from comma-separated string
+    let features = []
+    if (body.features) {
+      features = body.features
+        .split(',')
+        .map(f => f.trim())
+        .filter(f => f.length > 0)
+    }
+
     const properties = readTable('properties')
 
     const newProperty = {
       id: generateId(),
-      title: body.title,
+      title: body.title || '',
       address: body.address || null,
       price: parseFloat(body.price) || 0,
       bedrooms: parseInt(body.bedrooms) || 0,
@@ -63,12 +113,12 @@ export async function POST(request) {
       type: body.type || null,
       status: body.status || null,
       description: body.description || null,
-      images: Array.isArray(body.images) ? body.images : [],
-      features: Array.isArray(body.features) ? body.features : [],
+      images: allImages,
+      features: features,
       agentId: body.agentId || null,
-      isActive: body.isActive !== undefined ? body.isActive : true,
-      isFeatured: body.isFeatured || false,
-      displayOrder: body.displayOrder || 0,
+      isActive: body.isActive !== undefined ? (body.isActive === 'true' || body.isActive === true || body.isActive === 'on') : true,
+      isFeatured: body.isFeatured !== undefined ? (body.isFeatured === 'true' || body.isFeatured === true || body.isFeatured === 'on') : false,
+      displayOrder: parseInt(body.displayOrder) || 0,
       createdAt: getCurrentTimestamp(),
       updatedAt: getCurrentTimestamp(),
     }

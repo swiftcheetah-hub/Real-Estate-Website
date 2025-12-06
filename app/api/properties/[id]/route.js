@@ -48,7 +48,6 @@ export async function PATCH(request, { params }) {
     }
 
     const { id } = params
-    const body = await request.json()
     const properties = readTable('properties')
     const propertyIndex = properties.findIndex(p => p.id === id)
 
@@ -60,17 +59,79 @@ export async function PATCH(request, { params }) {
     }
 
     const existingProperty = properties[propertyIndex]
+    
+    // Parse FormData
+    const formData = await request.formData()
+    const body = {}
+    
+    // Extract all form fields (except files)
+    for (const [key, value] of formData.entries()) {
+      if (key !== 'images' && key !== 'existingImages') {
+        body[key] = value
+      }
+    }
+
+    // Handle existing images
+    let existingImages = existingProperty.images || []
+    const existingImagesStr = formData.get('existingImages')
+    if (existingImagesStr) {
+      try {
+        existingImages = JSON.parse(existingImagesStr)
+      } catch (e) {
+        console.error('Error parsing existingImages:', e)
+      }
+    }
+
+    // Process new image files - convert to base64
+    const newImages = []
+    const imageFiles = formData.getAll('images')
+    for (const file of imageFiles) {
+      if (file instanceof File) {
+        try {
+          const arrayBuffer = await file.arrayBuffer()
+          const buffer = Buffer.from(arrayBuffer)
+          const base64 = buffer.toString('base64')
+          const dataUrl = `data:${file.type};base64,${base64}`
+          newImages.push(dataUrl)
+        } catch (e) {
+          console.error('Error processing image file:', e)
+        }
+      }
+    }
+
+    // Combine existing and new images
+    const allImages = [...existingImages, ...newImages]
+
+    // Parse features from comma-separated string
+    let features = existingProperty.features || []
+    if (body.features) {
+      features = body.features
+        .split(',')
+        .map(f => f.trim())
+        .filter(f => f.length > 0)
+    }
+
     const updatedProperty = {
       ...existingProperty,
-      ...body,
-      price: body.price !== undefined ? parseFloat(body.price) : existingProperty.price,
-      bedrooms: body.bedrooms !== undefined ? parseInt(body.bedrooms) : existingProperty.bedrooms,
-      bathrooms: body.bathrooms !== undefined ? parseInt(body.bathrooms) : existingProperty.bathrooms,
+      title: body.title !== undefined ? body.title : existingProperty.title,
+      address: body.address !== undefined ? (body.address || null) : existingProperty.address,
+      price: body.price !== undefined ? parseFloat(body.price) || 0 : existingProperty.price,
+      bedrooms: body.bedrooms !== undefined ? parseInt(body.bedrooms) || 0 : existingProperty.bedrooms,
+      bathrooms: body.bathrooms !== undefined ? parseInt(body.bathrooms) || 0 : existingProperty.bathrooms,
       area: body.area !== undefined ? (body.area ? parseInt(body.area) : null) : existingProperty.area,
+      areaUnit: body.areaUnit !== undefined ? (body.areaUnit || null) : existingProperty.areaUnit,
       floor: body.floor !== undefined ? (body.floor ? parseInt(body.floor) : null) : existingProperty.floor,
+      landSize: body.landSize !== undefined ? (body.landSize || null) : existingProperty.landSize,
       yearBuilt: body.yearBuilt !== undefined ? (body.yearBuilt ? parseInt(body.yearBuilt) : null) : existingProperty.yearBuilt,
-      images: body.images !== undefined ? (Array.isArray(body.images) ? body.images : existingProperty.images) : existingProperty.images,
-      features: body.features !== undefined ? (Array.isArray(body.features) ? body.features : existingProperty.features) : existingProperty.features,
+      type: body.type !== undefined ? (body.type || null) : existingProperty.type,
+      status: body.status !== undefined ? (body.status || null) : existingProperty.status,
+      description: body.description !== undefined ? (body.description || null) : existingProperty.description,
+      images: allImages,
+      features: features,
+      agentId: body.agentId !== undefined ? (body.agentId || null) : existingProperty.agentId,
+      isActive: body.isActive !== undefined ? (body.isActive === 'true' || body.isActive === true || body.isActive === 'on') : existingProperty.isActive,
+      isFeatured: body.isFeatured !== undefined ? (body.isFeatured === 'true' || body.isFeatured === true || body.isFeatured === 'on') : existingProperty.isFeatured,
+      displayOrder: body.displayOrder !== undefined ? parseInt(body.displayOrder) || 0 : existingProperty.displayOrder,
       updatedAt: getCurrentTimestamp(),
     }
 
